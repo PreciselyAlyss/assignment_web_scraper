@@ -14,7 +14,7 @@ Results = Struct.new(
 class DiceScrape
   attr_accessor :file, :scraper, :results, :page
 
-  def initialize(site: 'dice.com', job: "developer", location: 78703)
+  def initialize(site: 'dice.com', job: 'developer', location: '78703')
     @uri = site
     @job = job
     @location = location
