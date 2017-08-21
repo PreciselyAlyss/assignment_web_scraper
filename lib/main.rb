@@ -7,8 +7,8 @@ Results = Struct.new(
     :title, 
     :company, 
     :link, 
-    :location, 
-    :post_data
+    :location,
+    :date_added
 )
 
 class DiceScrape
@@ -27,8 +27,8 @@ class DiceScrape
   end
 
   def get_results
-    url = 'https://' + @uri + '/jobs?q=' + @job + '&l=' + @location
-    @page = scrape.get(url)
+    url = "https://#{@uri}/jobs?q=#{@job}&l=#{@location}"
+    @page = @scrape.get(url)
 
     ##
     # h3 > a > span is the job title
@@ -36,10 +36,14 @@ class DiceScrape
     # ul > li > span > a > span.compName is company
     # ul > li > span > a has a link with the company ID (dice.com/company/ID)
     # ul > li > span > span is location/city
-    @page.search('#serp-results-content h3').each do |h3|
+    @page.search('.complete-serp-result-div h3').each do |h3|
       current_job = Results.new
-      current_job.title = h3.text.strip
-      current_job.company = 
+      # @page.search doesn't feel right here
+      current_job.title = @page.search('h3 a').attr('title').value
+      current_job.company = @page.search('li.employer .hidden-xs').attr('title').value
+      current_job.link = @page.search('h3 a').attr('href').value
+      current_job.location = @page.search('li.location').attr('title').value
+      current_job.date_added = Time.now.getutc
 
       @results << current_job
     end
@@ -48,3 +52,6 @@ class DiceScrape
   end
 
 end
+
+jobs = DiceScrape.new
+jobs.get_results
